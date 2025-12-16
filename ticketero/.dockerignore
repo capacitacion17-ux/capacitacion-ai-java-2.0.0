@@ -1,0 +1,74 @@
+# ============================================================================
+# .dockerignore - Optimiza el build excluyendo archivos innecesarios
+# ============================================================================
+
+# Maven build artifacts
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven wrapper (se descarga automáticamente)
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files (si no quieres incluir tests en la imagen)
+# src/test/
+
+# Environment files (IMPORTANTE: nunca incluir secrets)
+.env
+.env.*
+*.env
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Application-specific
+application-local.yml
+application-*.yml
+!application.yml

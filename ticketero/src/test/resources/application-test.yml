@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: ticketero-test
+  
+  # TestContainers configurará estos valores dinámicamente
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  
+  # RabbitMQ será configurado por TestContainers
+  rabbitmq:
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 2
+        prefetch: 1
+        acknowledge-mode: manual
+
+# Telegram mock para tests
+telegram:
+  bot-token: test-token
+  api-url: http://localhost:8080/mock-telegram
+  chat-id: "123456789"
+
+# Configuración de test
+app:
+  rabbitmq:
+    exchange: ticketero-test-exchange
+  recovery:
+    heartbeat-timeout-seconds: 10
+    check-interval-ms: 5000
+
+# Logging mínimo en tests
+logging:
+  level:
+    root: WARN
+    com.example.ticketero: INFO
+    org.testcontainers: INFO
+
+# Desactivar seguridad en tests
+spring.security:
+  user:
+    name: test
+    password: test

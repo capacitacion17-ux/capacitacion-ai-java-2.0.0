@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: ticketero
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ticketero}
+    username: ${DATABASE_USERNAME:dev}
+    password: ${DATABASE_PASSWORD:dev123}
+    driver-class-name: org.postgresql.Driver
+
+    # Connection Pool Optimizado (HikariCP)
+    hikari:
+      maximum-pool-size: 15        # 12 workers (4 colas × 3) + 3 extras
+      minimum-idle: 5              # Mantener 5 conexiones siempre listas
+      connection-timeout: 10000    # 10 segundos
+      idle-timeout: 300000         # 5 minutos
+      max-lifetime: 600000         # 10 minutos
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false          # Producción: desactivar para performance
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  # Configuración de RabbitMQ
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:dev}
+    password: ${RABBITMQ_PASSWORD:dev123}
+    listener:
+      simple:
+        # Configuración de consumers (workers)
+        # CRÍTICO: Alineado con capacidad de asesores
+        concurrency: 3          # Workers iniciales = asesores promedio
+        max-concurrency: 3      # NUNCA exceder capacidad (evita deadlock)
+        prefetch: 1             # Procesa 1 mensaje a la vez (distribución justa)
+        acknowledge-mode: manual # ACK manual (garantiza no pérdida de mensajes)
+        retry:
+          enabled: false        # Reintentos manejados manualmente con NACK
+        default-requeue-rejected: true  # Requeue en caso de error
+
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN}
+  api-url: https://api.telegram.org/bot
+  chat-id: ${TELEGRAM_CHAT_ID:000000}
+
+# Configuración custom de la aplicación
+app:
+  rabbitmq:
+    exchange: ticketero-exchange
+    # Las colas se crean automáticamente en RabbitMQConfig
+
+  # Configuración de recuperación automática (Resilience)
+  recovery:
+    # Tiempo sin heartbeat para considerar un worker como muerto
+    heartbeat-timeout-seconds: 60
+    # Intervalo de verificación de workers muertos (en RecoveryService @Scheduled)
+    check-interval-ms: 30000
+
+# Logging optimizado para producción
+logging:
+  level:
+    root: INFO                                # General: INFO
+    com.example.ticketero: INFO               # App: INFO
+    com.example.ticketero.consumer: DEBUG     # Workers: DEBUG (monitorear procesamiento)
+    com.example.ticketero.service: INFO       # Services: INFO
+    org.hibernate.SQL: WARN                   # SQL: Solo warnings
+    org.springframework.amqp: WARN            # RabbitMQ: Solo warnings
+    org.springframework.web: INFO             # Web: INFO
+
+  # Patrón de log estructurado
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n"
+
+# Actuator para monitoreo
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus  # Incluir Prometheus
+  endpoint:
+    health:
+      show-details: always
+
+  # Métricas de RabbitMQ y JPA
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}

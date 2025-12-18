@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Ticket - Ticketero</title>
+    <link th:href="@{/vendor/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/vendor/icons.css}" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-ticket-alt me-2"></i>Ticketero
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" th:href="@{/}">🏠 Inicio</a>
+                <a class="nav-link active" th:href="@{/create-ticket}">➕ Crear</a>
+                <a class="nav-link" th:href="@{/check-ticket}">🔍 Consultar</a>
+                <a class="nav-link" th:href="@{/dashboard}">📊 Dashboard</a>
+            </div>
+        </div>
+    </nav>
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>Crear Nuevo Ticket
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="ticketForm">
+                            <div class="mb-3">
+                                <label for="nationalId" class="form-label">Cédula/ID *</label>
+                                <input type="text" class="form-control" id="nationalId" required>
+                                <div class="form-text">Ingresa tu número de identificación</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono">
+                                <div class="form-text">Opcional: para notificaciones adicionales</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="queueType" class="form-label">Tipo de Servicio *</label>
+                                <select class="form-select" id="queueType" required>
+                                    <option value="">Selecciona un servicio</option>
+                                    <option value="CAJA">Caja</option>
+                                    <option value="PERSONAL">Banca Personal</option>
+                                    <option value="EMPRESAS">Banca Empresas</option>
+                                    <option value="GERENCIA">Atención Gerencial</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="branchOffice" class="form-label">Sucursal *</label>
+                                <input type="text" class="form-control" id="branchOffice" value="Sucursal Principal" required>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-ticket-alt me-2"></i>Crear Ticket
+                                </button>
+                                <a th:href="@{/}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Volver
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal para mostrar resultado -->
+        <div class="modal fade" id="resultModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ticket Creado</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                        <!-- Content will be filled by JavaScript -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-info" onclick="location.href='/check-ticket'">Consultar Estado</button>
+                        <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script th:src="@{/vendor/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        document.getElementById('ticketForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Deshabilitar botón y mostrar loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creando...';
+            
+            const formData = {
+                nationalId: document.getElementById('nationalId').value.trim(),
+                telefono: document.getElementById('telefono').value.trim() || null,
+                queueType: document.getElementById('queueType').value,
+                branchOffice: document.getElementById('branchOffice').value.trim()
+            };
+            
+            try {
+                const ticket = await TicketeroApp.fetchAPI('/api/tickets', {
+                    method: 'POST',
+                    body: JSON.stringify(formData)
+                });
+                
+                showTicketResult(ticket);
+                this.reset(); // Limpiar formulario
+                TicketeroApp.showToast('Ticket creado exitosamente', 'success');
+            } catch (error) {
+                TicketeroApp.showToast('Error: ' + error.message, 'danger');
+            } finally {
+                // Restaurar botón
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+        
+        function showTicketResult(ticket) {
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="text-center">
+                    <div class="alert alert-success">
+                        <h4><i class="fas fa-check-circle"></i> ¡Ticket Creado Exitosamente!</h4>
+                    </div>
+                    <div class="ticket-info">
+                        <h2 class="text-primary">${ticket.numero}</h2>
+                        <p><strong>Código:</strong> 
+                            <span class="copy-code" data-code="${ticket.codigoReferencia}" 
+                                  style="cursor: pointer; text-decoration: underline;" 
+                                  title="Click para copiar">
+                                ${ticket.codigoReferencia}
+                            </span>
+                        </p>
+                        <p><strong>Cola:</strong> ${ticket.queueType}</p>
+                        <p><strong>Posición:</strong> #${ticket.positionInQueue || 'N/A'}</p>
+                        <p><strong>Tiempo estimado:</strong> ${ticket.estimatedWaitMinutes || 'N/A'} minutos</p>
+                        <p><strong>Tickets adelante:</strong> ${ticket.ticketsAheadOfYou || 'N/A'}</p>
+                        <p><strong>Sucursal:</strong> ${ticket.branchOffice || 'N/A'}</p>
+                        <small class="text-muted">Creado: ${TicketeroApp.formatDate(ticket.createdAt)}</small>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar funcionalidad de copia al código
+            modalBody.querySelector('.copy-code').addEventListener('click', function() {
+                TicketeroApp.copyToClipboard(this.getAttribute('data-code'));
+            });
+            
+            new bootstrap.Modal(document.getElementById('resultModal')).show();
+        }
+    </script>
+</body>
+</html>

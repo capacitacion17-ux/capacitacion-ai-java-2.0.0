@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Ticketero'">Ticketero</title>
+    <link th:href="@{/vendor/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/vendor/icons.css}" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-ticket-alt me-2"></i>Ticketero
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="fas fa-home me-1"></i>Inicio
+                    </a>
+                    <a class="nav-link" th:href="@{/create-ticket}">
+                        <i class="fas fa-plus-circle me-1"></i>Crear Ticket
+                    </a>
+                    <a class="nav-link" th:href="@{/check-ticket}">
+                        <i class="fas fa-search me-1"></i>Consultar
+                    </a>
+                    <a class="nav-link" th:href="@{/dashboard}">
+                        <i class="fas fa-chart-bar me-1"></i>Dashboard
+                    </a>
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog me-1"></i>Más
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/swagger-ui/index.html" target="_blank">
+                                <i class="fas fa-code me-2"></i>API Docs
+                            </a></li>
+                            <li><a class="dropdown-item" href="/actuator/health" target="_blank">
+                                <i class="fas fa-heartbeat me-2"></i>Health Check
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="showAbout()">
+                                <i class="fas fa-info-circle me-2"></i>Acerca de
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        <div th:fragment="content">
+            <!-- Content will be replaced by specific pages -->
+        </div>
+    </main>
+
+    <footer class="bg-light mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary">Ticketero v1.0</h6>
+                    <small class="text-muted">Sistema de Gestión de Turnos con Notificaciones Telegram</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        <span id="currentTime"></span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Modal About -->
+    <div class="modal fade" id="aboutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-ticket-alt me-2"></i>Acerca de Ticketero
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-ticket-alt fa-3x text-primary"></i>
+                        <h4 class="mt-2">Ticketero v1.0</h4>
+                    </div>
+                    <p><strong>Sistema de Gestión de Turnos</strong></p>
+                    <p>Características principales:</p>
+                    <ul>
+                        <li>Creación de tickets por cola</li>
+                        <li>Consulta de estado en tiempo real</li>
+                        <li>Dashboard administrativo</li>
+                        <li>Notificaciones Telegram</li>
+                        <li>API REST completa</li>
+                    </ul>
+                    <hr>
+                    <small class="text-muted">
+                        Desarrollado con Spring Boot, PostgreSQL y RabbitMQ
+                    </small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/vendor/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        // Actualizar reloj en tiempo real
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('es-ES');
+            const clockElement = document.getElementById('currentTime');
+            if (clockElement) {
+                clockElement.textContent = timeString;
+            }
+        }
+        
+        // Mostrar modal About
+        function showAbout() {
+            new bootstrap.Modal(document.getElementById('aboutModal')).show();
+        }
+        
+        // Inicializar reloj
+        updateClock();
+        setInterval(updateClock, 1000);
+        
+        // Marcar enlace activo en navegación
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

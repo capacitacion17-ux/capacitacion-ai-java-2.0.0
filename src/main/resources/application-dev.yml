@@ -1,0 +1,46 @@
+spring:
+  # Base de datos en memoria para desarrollo
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    
+  # Deshabilitar Flyway para desarrollo
+  flyway:
+    enabled: false
+    
+  # Deshabilitar RabbitMQ para desarrollo
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    
+# Configuración simplificada para desarrollo
+telegram:
+  bot-token: test_token
+  api-url: https://api.telegram.org/bot
+  chat-id: test_chat_id
+
+# Logging más detallado para desarrollo
+logging:
+  level:
+    root: INFO
+    com.example.ticketero: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+server:
+  port: 8081

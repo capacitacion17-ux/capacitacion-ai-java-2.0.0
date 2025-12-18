@@ -1,0 +1,237 @@
+/* Estilos personalizados para Ticketero */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    padding: 0.5rem 1rem;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.ticket-info {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 12px;
+    margin: 15px 0;
+    border: 1px solid #dee2e6;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.badge {
+    font-size: 0.8em;
+    padding: 0.5em 0.75em;
+    border-radius: 6px;
+}
+
+/* Animaciones para elementos interactivos */
+.copy-code {
+    transition: color 0.2s ease-in-out;
+}
+
+.copy-code:hover {
+    color: #0d6efd !important;
+    text-decoration: underline !important;
+}
+
+/* Mejoras para formularios */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Estilos para el dashboard */
+.dashboard-card {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary) 100%);
+    border: none;
+    color: white;
+}
+
+.dashboard-card.bg-success {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+}
+
+.dashboard-card.bg-warning {
+    background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+}
+
+.dashboard-card.bg-info {
+    background: linear-gradient(135deg, #0dcaf0 0%, #6f42c1 100%);
+}
+
+/* Efectos de loading */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Mejoras para tablas */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* Toast notifications */
+.toast {
+    border-radius: 8px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Pulse animation for important elements */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-waiting { background-color: #ffc107; }
+.status-called { background-color: #0dcaf0; }
+.status-progress { background-color: #0d6efd; }
+.status-completed { background-color: #198754; }
+.status-cancelled { background-color: #dc3545; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+    }
+    
+    .navbar-nav {
+        text-align: center;
+    }
+    
+    .ticket-info {
+        padding: 15px;
+    }
+    
+    .dashboard-stats .col-md-3 {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-group-vertical .btn {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar, .btn, footer, .modal-footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+    
+    .ticket-info {
+        background: white !important;
+        border: 1px solid #000 !important;
+    }
+    
+    body {
+        background: white !important;
+    }
+    
+    .text-primary, .text-info, .text-success, .text-warning {
+        color: #000 !important;
+    }
+    
+    .badge {
+        border: 1px solid #000 !important;
+        background: white !important;
+        color: #000 !important;
+    }
+}

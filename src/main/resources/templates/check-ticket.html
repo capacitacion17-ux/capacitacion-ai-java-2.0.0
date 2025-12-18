@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Ticket - Ticketero</title>
+    <link th:href="@{/vendor/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/vendor/icons.css}" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-ticket-alt me-2"></i>Ticketero
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" th:href="@{/}">🏠 Inicio</a>
+                <a class="nav-link" th:href="@{/create-ticket}">➕ Crear</a>
+                <a class="nav-link active" th:href="@{/check-ticket}">🔍 Consultar</a>
+                <a class="nav-link" th:href="@{/dashboard}">📊 Dashboard</a>
+            </div>
+        </div>
+    </nav>
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-search me-2"></i>Consultar Estado del Ticket
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="searchForm">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label for="searchValue" class="form-label">Código de Referencia o Número de Ticket</label>
+                                    <input type="text" class="form-control" id="searchValue" placeholder="Ej: A001 o 123e4567-e89b-12d3-a456-426614174000" required>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-info w-100">
+                                        <i class="fas fa-search me-2"></i>Buscar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div id="loadingSpinner" class="text-center mt-4" style="display: none;">
+                            <div class="spinner-border text-info" role="status">
+                                <span class="visually-hidden">Buscando...</span>
+                            </div>
+                            <p class="mt-2">Buscando ticket...</p>
+                        </div>
+                        
+                        <div id="ticketResult" class="mt-4" style="display: none;">
+                            <!-- Results will be shown here -->
+                        </div>
+                        
+                        <div id="errorResult" class="mt-4" style="display: none;">
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span id="errorMessage"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a th:href="@{/}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script th:src="@{/vendor/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const searchValue = document.getElementById('searchValue').value.trim();
+            if (!searchValue) {
+                TicketeroApp.showToast('Por favor ingresa un código o número de ticket', 'warning');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                let data;
+                
+                // Determinar si es UUID o número de ticket
+                if (TicketeroApp.isValidUUID(searchValue)) {
+                    // Es un UUID
+                    data = await TicketeroApp.fetchAPI(`/api/tickets/${searchValue}`);
+                    showTicketDetails(data);
+                } else {
+                    // Es un número de ticket, buscar posición
+                    data = await TicketeroApp.fetchAPI(`/api/tickets/${encodeURIComponent(searchValue)}/position`);
+                    showPositionDetails(data);
+                }
+                
+            } catch (error) {
+                if (error.message.includes('404')) {
+                    showError('Ticket no encontrado. Verifica el código o número ingresado.');
+                } else {
+                    showError(error.message);
+                }
+            } finally {
+                hideLoading();
+            }
+        });
+        
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('ticketResult').style.display = 'none';
+            document.getElementById('errorResult').style.display = 'none';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+        
+        function showTicketDetails(ticket) {
+            const statusBadge = getStatusBadge(ticket.status);
+            const advisorInfo = ticket.assignedAdvisor ? 
+                `<p><strong>Asesor:</strong> ${ticket.assignedAdvisor.name} (Módulo ${ticket.assignedAdvisor.moduleNumber})</p>` : '';
+            
+            document.getElementById('ticketResult').innerHTML = `
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Información del Ticket</h5>
+                        <button class="btn btn-sm btn-outline-light" onclick="location.reload()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3 class="text-primary">${ticket.numero}</h3>
+                                <p><strong>Estado:</strong> ${statusBadge}</p>
+                                <p><strong>Cola:</strong> ${ticket.queueType}</p>
+                                <p><strong>Sucursal:</strong> ${ticket.branchOffice || 'N/A'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Posición:</strong> #${ticket.positionInQueue || 'N/A'}</p>
+                                <p><strong>Tiempo estimado:</strong> ${ticket.estimatedWaitMinutes || 'N/A'} min</p>
+                                <p><strong>Tickets adelante:</strong> ${ticket.ticketsAheadOfYou || 'N/A'}</p>
+                                ${advisorInfo}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <strong>Código:</strong> 
+                                <span class="copy-code" data-code="${ticket.codigoReferencia}" 
+                                      style="cursor: pointer; text-decoration: underline;" 
+                                      title="Click para copiar">
+                                    ${ticket.codigoReferencia}
+                                </span><br>
+                                <strong>Creado:</strong> ${TicketeroApp.formatDate(ticket.createdAt)}
+                            </small>
+                            <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                                <i class="fas fa-print"></i> Imprimir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar funcionalidad de copia
+            document.querySelector('.copy-code').addEventListener('click', function() {
+                TicketeroApp.copyToClipboard(this.getAttribute('data-code'));
+            });
+            
+            document.getElementById('ticketResult').style.display = 'block';
+        }
+        
+        function showPositionDetails(position) {
+            const statusBadge = getStatusBadge(position.status);
+            
+            document.getElementById('ticketResult').innerHTML = `
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Posición en Cola</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h2 class="text-info">${position.numero}</h2>
+                        <p><strong>Estado:</strong> ${statusBadge}</p>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h4 class="text-primary">#${position.positionInQueue}</h4>
+                                        <small>Posición</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h4 class="text-warning">${position.estimatedWaitMinutes} min</h4>
+                                        <small>Tiempo estimado</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h4 class="text-info">${position.ticketsAheadOfYou}</h4>
+                                        <small>Tickets adelante</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('ticketResult').style.display = 'block';
+        }
+        
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorResult').style.display = 'block';
+        }
+        
+        function getStatusBadge(status) {
+            const badges = {
+                'WAITING': '<span class="badge bg-warning">Esperando</span>',
+                'CALLED': '<span class="badge bg-info">Llamado</span>',
+                'IN_PROGRESS': '<span class="badge bg-primary">En Atención</span>',
+                'COMPLETED': '<span class="badge bg-success">Completado</span>',
+                'CANCELLED': '<span class="badge bg-danger">Cancelado</span>'
+            };
+            return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+        }
+        
+        function formatDate(dateString) {
+            return TicketeroApp.formatDate(dateString);
+        }
+        
+        // Auto-refresh cada 30 segundos si hay un ticket mostrado
+        setInterval(function() {
+            const ticketResult = document.getElementById('ticketResult');
+            if (ticketResult.style.display !== 'none' && ticketResult.innerHTML.trim() !== '') {
+                const searchValue = document.getElementById('searchValue').value.trim();
+                if (searchValue) {
+                    // Recargar silenciosamente
+                    document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+                }
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

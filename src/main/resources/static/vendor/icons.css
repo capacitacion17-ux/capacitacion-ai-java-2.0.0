@@ -1,0 +1,37 @@
+/* Iconos simplificados usando Unicode para evitar dependencias de fuentes */
+.fas, .fa {
+    font-style: normal;
+    font-weight: normal;
+    display: inline-block;
+}
+
+.fa-ticket-alt::before { content: "🎫"; }
+.fa-home::before { content: "🏠"; }
+.fa-plus-circle::before { content: "➕"; }
+.fa-search::before { content: "🔍"; }
+.fa-chart-bar::before { content: "📊"; }
+.fa-cog::before { content: "⚙️"; }
+.fa-code::before { content: "💻"; }
+.fa-heartbeat::before { content: "💓"; }
+.fa-info-circle::before { content: "ℹ️"; }
+.fa-clock::before { content: "🕐"; }
+.fa-arrow-left::before { content: "←"; }
+.fa-sync-alt::before { content: "🔄"; }
+.fa-pause::before { content: "⏸️"; }
+.fa-play::before { content: "▶️"; }
+.fa-check-circle::before { content: "✅"; }
+.fa-exclamation-triangle::before { content: "⚠️"; }
+.fa-spinner::before { content: "⏳"; }
+.fa-print::before { content: "🖨️"; }
+.fa-external-link-alt::before { content: "🔗"; }
+.fa-user-check::before { content: "👤"; }
+
+/* Animación para spinner */
+.fa-spin {
+    animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

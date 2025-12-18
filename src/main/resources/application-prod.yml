@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: ticketero
+  
+  # Datasource - TODOS los valores desde variables de entorno
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate  # NUNCA usar create/update en producción
+    show-sql: false       # NO mostrar SQL en producción
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+  
+  # RabbitMQ - TODOS los valores desde variables de entorno
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        concurrency: 3
+        max-concurrency: 10
+        prefetch: 1
+        acknowledge-mode: manual
+        retry:
+          enabled: false
+          initial-interval: 5000
+          max-attempts: 3
+          multiplier: 2.0
+
+# Telegram - TODOS los valores desde variables de entorno
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN}
+  api-url: https://api.telegram.org/bot
+  chat-id: ${TELEGRAM_CHAT_ID}
+
+# Configuración de la aplicación
+app:
+  rabbitmq:
+    exchange: ticketero-exchange
+  recovery:
+    heartbeat-timeout-seconds: 60
+    check-interval-ms: 30000
+
+# Logging para producción
+logging:
+  level:
+    root: INFO
+    com.example.ticketero: INFO
+    com.example.ticketero.consumer: INFO
+    com.example.ticketero.service: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.amqp: WARN
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /var/log/ticketero/application.log
+    max-size: 10MB
+    max-history: 30
+
+# Actuator para monitoreo
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ticketero
+      environment: production
+
+# Security
+spring.security:
+  user:
+    name: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD}

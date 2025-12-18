@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head>
+    <title>Inicio - Ticketero</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-4">
+                    <i class="fas fa-ticket-alt text-primary"></i>
+                    Bienvenido a Ticketero
+                </h1>
+                <p class="lead mb-3">Sistema de gestión de turnos con notificaciones Telegram</p>
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>¿Cómo funciona?</strong> Crea tu ticket, consulta tu posición en tiempo real y recibe notificaciones cuando sea tu turno.
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-plus-circle fa-3x text-success mb-3"></i>
+                                <h5 class="card-title">Crear Ticket</h5>
+                                <p class="card-text">Genera un nuevo turno en la cola que necesites</p>
+                                <a th:href="@{/create-ticket}" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Crear Ticket
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-search fa-3x text-info mb-3"></i>
+                                <h5 class="card-title">Consultar Estado</h5>
+                                <p class="card-text">Verifica el estado y posición de tu ticket</p>
+                                <a th:href="@{/check-ticket}" class="btn btn-info">
+                                    <i class="fas fa-search me-2"></i>Consultar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+                                <h5 class="card-title">Dashboard</h5>
+                                <p class="card-text">Estadísticas y estado general del sistema</p>
+                                <a th:href="@{/dashboard}" class="btn btn-warning">
+                                    <i class="fas fa-chart-bar me-2"></i>Ver Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-code fa-3x text-secondary mb-3"></i>
+                                <h5 class="card-title">API REST</h5>
+                                <p class="card-text">Documentación completa de la API</p>
+                                <a href="/swagger-ui/index.html" target="_blank" class="btn btn-secondary">
+                                    <i class="fas fa-external-link-alt me-2"></i>Ver API Docs
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Tipos de Cola Disponibles</h6>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <span class="badge bg-primary mb-2">CAJA</span>
+                                        <p><small>Operaciones bancarias básicas</small></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-success mb-2">PERSONAL</span>
+                                        <p><small>Banca personal y asesoría</small></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-info mb-2">EMPRESAS</span>
+                                        <p><small>Servicios empresariales</small></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-warning mb-2">GERENCIA</span>
+                                        <p><small>Atención gerencial</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
